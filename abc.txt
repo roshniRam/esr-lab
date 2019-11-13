@@ -1,0 +1,410 @@
+﻿LCD
+/*
+ The circuit:
+ * LCD RS pin to digital pin 12
+ * LCD Enable pin to digital pin 11
+ * LCD D4 pin to digital pin 5
+ * LCD D5 pin to digital pin 4
+ * LCD D6 pin to digital pin 3
+ * LCD D7 pin to digital pin 2
+ * LCD R/W pin to ground
+ * LCD VSS pin to ground
+ * LCD VCC pin to 5V
+ * 10K resistor:
+ * ends to +5V and ground
+ * wiper to LCD VO pin (pin 3)
+*/
+
+
+#include <LiquidCrystal.h>
+
+
+// initialize the library by associating any needed LCD interface pin
+// with the arduino pin number it is connected to
+const int rs = 12, en = 11, d4 = 5, d5 = 4, d6 = 3, d7 = 2;
+LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+
+
+void setup() {
+  // set up the LCD's number of columns and rows:
+  lcd.begin(16, 2);
+  // Print a message to the LCD.
+  lcd.print("hello, world!");
+}
+
+
+void loop() {
+  // set the cursor to column 0, line 1
+  // (note: line 1 is the second row, since counting begins with 0):
+  lcd.setCursor(0, 1);
+  // print the number of seconds since reset:
+  lcd.print(millis() / 1000);
+}
+________________
+
+
+
+
+
+
+
+
+
+
+Ultrasonic sensor
+/*
+Vcc to 5V Pin of the Arduino.
+Gnd to Gnd Pin of the Arduino.
+Trig to Digital Pin 9 .
+Echo to Digital Pin 10.
+*/
+// defining the pins
+const int trigPin = 9;
+const int echoPin = 10;
+// defining variables
+long duration;
+int distance;
+void setup() {
+pinMode(trigPin, OUTPUT); // Sets the trigPin as an Output
+pinMode(echoPin, INPUT); // Sets the echoPin as an Input
+Serial.begin(9600); // Starts the serial communication
+}
+void loop() {
+// Clears the trigPin
+digitalWrite(trigPin, LOW);
+delayMicroseconds(2);
+// Sets the trigPin on HIGH state for 10 micro seconds
+digitalWrite(trigPin, HIGH);
+delayMicroseconds(10);
+digitalWrite(trigPin, LOW);
+// Reads the echoPin, returns the sound wave travel time in microseconds
+duration = pulseIn(echoPin, HIGH);
+// Calculating the distance
+distance= duration*0.034/2;
+// Prints the distance on the Serial Monitor
+Serial.print("Distance: ");
+Serial.println(distance);
+}
+
+
+________________
+
+
+Temp sensor
+Connect Arduino Uno GND to LM35 GND
+Connect Arduino 5V pin to LM35 pin 1
+Connect Arduino Uno Analog Pin 1 to LM35 pin OUT
+
+
+
+
+int pinTemp = A1;   //This is where our Output data goes
+
+
+void setup() {
+  Serial.begin(9600);     
+}
+void loop() {
+  int temp = analogRead(pinTemp);    //Read the analog pin
+  temp = temp * 0.48828125;   // convert output (mv) to readable celcius
+  Serial.print("Temperature: ");
+  Serial.print(temp);
+  Serial.println("C");  //print the temperature status
+  delay(1000);  
+}
+
+
+
+
+#include <dht.h>#include <LiquidCrystal.h> LiquidCrystal lcd(12, 11, 5, 4, 3, 2); dht DHT; #define DHT11_PIN 7 void setup(){ lcd.begin(16, 2); } void loop() { int chk = DHT.read11(DHT11_PIN); lcd.setCursor(0,0); lcd.print("Temp: "); lcd.print(DHT.temperature); lcd.print((char)223); 8 lcd.print("C"); lcd.setCursor(0,1); lcd.print("Humidity: "); lcd.print(DHT.humidity); lcd.print("%"); delay(1000); }
+
+
+
+
+________________
+
+
+IR sensor
+int LED = 13; // Use the onboard Uno LED
+int isObstaclePin = 7;  // This is our input pin
+int isObstacle = HIGH;  // HIGH MEANS NO OBSTACLE
+void setup() {
+  pinMode(LED, OUTPUT);
+  pinMode(isObstaclePin, INPUT);
+  Serial.begin(9600);
+}
+void loop() {
+  isObstacle = digitalRead(isObstaclePin);
+  if (isObstacle == LOW) {
+    Serial.println("OBSTACLE!!, OBSTACLE!!");
+    digitalWrite(LED, HIGH);
+  }  else{
+    Serial.println("clear");
+    digitalWrite(LED, LOW);
+  }
+  delay(200);
+}
+
+
+
+
+LDR Sensor
+Connect a0 to a0
+void setup(){
+Serial.begin(9600);
+}
+void loop(){
+unsigned int AnalogValue;
+AnalogValue = analogRead(A0);
+Serial.println(AnalogValue);
+}
+________________
+
+
+Keypad
+1-4 are rows and 5-8 are columns
+#include "Adafruit_Keypad.h"
+
+
+const byte ROWS = 4; // rows
+const byte COLS = 4; // columns
+//define the symbols on the buttons of the keypads
+char keys[ROWS][COLS] = {
+  {'1','2','3','A'},
+  {'4','5','6','B'},
+  {'7','8','9','C'},
+  {'*','0','#','D'}
+};
+byte rowPins[ROWS] = {5, 4, 3, 2}; //connect to the row pinouts of the keypad
+byte colPins[COLS] = {11, 10, 9, 8}; //connect to the column pinouts of the keypad
+
+
+//initialize an instance of class NewKeypad
+Adafruit_Keypad customKeypad = Adafruit_Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS);
+void setup() {
+  Serial.begin(9600);
+  customKeypad.begin();
+
+
+}
+void loop() {
+  // put your main code here, to run repeatedly:
+  customKeypad.tick();
+
+
+  while(customKeypad.available()){
+    keypadEvent e = customKeypad.read();
+    Serial.print((char)e.bit.KEY);
+    if(e.bit.EVENT == KEY_JUST_PRESSED) Serial.println(" pressed");
+    else if(e.bit.EVENT == KEY_JUST_RELEASED) Serial.println(" released");
+  }
+  delay(10);
+}
+________________
+
+
+
+
+7 segment
+PIN1 or E to PIN 6 of ARDUINO UNO
+PIN2 or D to PIN 5
+PIN4 or C to PIN 4
+PIN5 or H or DP to PIN 9 ///not needed as we are not using decimal point
+PIN6 or B to PIN 3
+PIN7 or A to PIN 2
+PIN9 or F to PIN 7
+PIN10 or G to PIN 8
+PIN3 or PIN8 or CC to ground through 100Ω resistor.
+
+
+#define segA 2//connecting segment A to PIN2
+#define segB 3// connecting segment B to PIN3
+#define segC 4// connecting segment C to PIN4
+#define segD 5// connecting segment D to PIN5
+#define segE 6// connecting segment E to PIN6
+#define segF 7// connecting segment F to PIN7
+#define segG 8// connecting segment G to PIN8
+ 
+                    int COUNT=0;//count integer for 0-9 increment
+void setup()
+{
+                      for (int i=2;i<9;i++)
+                      {
+                                            pinMode(i, OUTPUT);// taking all pins from 2-8 as output
+                      }
+}
+ 
+void loop()
+{
+switch (COUNT)
+                    {
+ 
+                    case 0://when count value is zero show”0” on disp
+                    digitalWrite(segA, HIGH);
+                    digitalWrite(segB, HIGH);
+                    digitalWrite(segC, HIGH);
+                    digitalWrite(segD, HIGH);
+                    digitalWrite(segE, HIGH);
+                    digitalWrite(segF, HIGH);
+                    digitalWrite(segG, LOW);
+                    break;
+ 
+                    case 1:// when count value is 1 show”1” on disp
+                    digitalWrite(segA, LOW);
+                    digitalWrite(segB, HIGH);
+                    digitalWrite(segC, HIGH);
+                    digitalWrite(segD, LOW);
+                    digitalWrite(segE, LOW);
+                    digitalWrite(segF, LOW);
+                    digitalWrite(segG, LOW);
+                    break;
+ 
+                    case 2:// when count value is 2 show”2” on disp
+                    digitalWrite(segA, HIGH);
+                    digitalWrite(segB, HIGH);
+                    digitalWrite(segC, LOW);
+                    digitalWrite(segD, HIGH);
+                    digitalWrite(segE, HIGH);
+                    digitalWrite(segF, LOW);
+                    digitalWrite(segG, HIGH);
+                    break;
+ 
+                    case 3:// when count value is 3 show”3” on disp
+                    digitalWrite(segA, HIGH);
+                    digitalWrite(segB, HIGH);
+                    digitalWrite(segC, HIGH);
+                    digitalWrite(segD, HIGH);
+                    digitalWrite(segE, LOW);
+                    digitalWrite(segF, LOW);
+                    digitalWrite(segG, HIGH);
+                    break;
+ 
+                    case 4:// when count value is 4 show”4” on disp
+                    digitalWrite(segA, LOW);
+                    digitalWrite(segB, HIGH);
+                    digitalWrite(segC, HIGH);
+                    digitalWrite(segD, LOW);
+                    digitalWrite(segE, LOW);
+                    digitalWrite(segF, HIGH);
+                    digitalWrite(segG, HIGH);
+                    break;
+ 
+                    case 5:// when count value is 5 show”5” on disp
+                    digitalWrite(segA, HIGH);
+                    digitalWrite(segB, LOW);
+                    digitalWrite(segC, HIGH);
+                    digitalWrite(segD, HIGH);
+                    digitalWrite(segE, LOW);
+                    digitalWrite(segF, HIGH);
+                    digitalWrite(segG, HIGH);
+                    break;
+ 
+                    case 6:// when count value is 6 show”6” on disp
+                    digitalWrite(segA, HIGH);
+                    digitalWrite(segB, LOW);
+                    digitalWrite(segC, HIGH);
+                    digitalWrite(segD, HIGH);
+                    digitalWrite(segE, HIGH);
+                    digitalWrite(segF, HIGH);
+                    digitalWrite(segG, HIGH);
+                    break;
+ 
+                    case 7:// when count value is 7 show”7” on disp
+                    digitalWrite(segA, HIGH);
+                    digitalWrite(segB, HIGH);
+                    digitalWrite(segC, HIGH);
+                    digitalWrite(segD, LOW);
+                    digitalWrite(segE, LOW);
+                    digitalWrite(segF, LOW);
+                    digitalWrite(segG, LOW);
+                    break;
+ 
+                    case 8:// when count value is 8 show”8” on disp
+                    digitalWrite(segA, HIGH);
+                    digitalWrite(segB, HIGH);
+                    digitalWrite(segC, HIGH);
+                    digitalWrite(segD, HIGH);
+                    digitalWrite(segE, HIGH);
+                    digitalWrite(segF, HIGH);
+                    digitalWrite(segG, HIGH);
+                    break;
+ 
+                    case 9:// when count value is 9 show”9” on disp
+                    digitalWrite(segA, HIGH);
+                    digitalWrite(segB, HIGH);
+                    digitalWrite(segC, HIGH);
+                    digitalWrite(segD, HIGH);
+                    digitalWrite(segE, LOW);
+                    digitalWrite(segF, HIGH);
+                    digitalWrite(segG, HIGH);
+                    break;
+ 
+                    break;
+                    }
+                    if (COUNT<10)
+                    {
+                                    COUNT++;
+                                    delay(1000);///increment count integer for every second
+                    }
+                    if (COUNT==10)
+                    {
+                                    COUNT=0;// if count integer value is equal to 10, reset it to zero.
+                                    delay(1000);
+                    }
+}
+
+
+________________
+
+
+Servo motor
+// Include the Servo library
+#include <Servo.h> 
+// Declare the Servo pin 
+int servoPin = 3; 
+// Create a servo object 
+Servo Servo1; 
+void setup() { 
+   // We need to attach the servo to the used pin number 
+   Servo1.attach(servoPin); 
+}
+void loop(){ 
+   // Make servo go to 0 degrees 
+   Servo1.write(0); 
+   delay(1000); 
+   // Make servo go to 90 degrees 
+   Servo1.write(90); 
+   delay(1000); 
+   // Make servo go to 180 degrees 
+   Servo1.write(180); 
+   delay(1000); 
+}
+
+
+________________
+
+
+Stepper motor
+n Arduino we will be operating the motor in 4-step sequence so the stride angle will be 11.25° since it is 5.625°(given in datasheet) for 8 step  sequence it will be 11.25° (5.625*2=11.25).
+         Steps per revolution = 360/step angle
+Here, 360/11.25 = 32 steps per revolution.
+// Arduino stepper motor control code
+#include <Stepper.h> // Include the header file
+// change this to the number of steps on your motor
+#define STEPS 32
+// create an instance of the stepper class using the steps and pins
+Stepper stepper(STEPS, 8, 10, 9, 11);
+int val = 0;
+void setup() {
+  Serial.begin(9600);
+  stepper.setSpeed(200);
+}
+void loop() {
+  if (Serial.available()>0)
+  {
+    val = Serial.parseInt();
+    stepper.step(val);
+    Serial.println(val); //for debugging
+  }
+ 
+}
